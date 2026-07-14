@@ -1,0 +1,82 @@
+{
+  "name": "crush-lang",
+  "displayName": "Crush",
+  "description": "Syntax highlighting and diagnostics for the Crush language",
+  "version": "0.1.0",
+  "publisher": "crush-lang",
+  "license": "MIT OR Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nixpt/crush-vscode"
+  },
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "activationEvents": [
+    "onLanguage:crush"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "languages": [
+      {
+        "id": "crush",
+        "aliases": [
+          "Crush",
+          "crush"
+        ],
+        "extensions": [
+          ".crush"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "crush",
+        "scopeName": "source.crush",
+        "path": "./syntaxes/crush.tmLanguage.json"
+      }
+    ],
+    "commands": [
+      {
+        "command": "crush.checkFile",
+        "title": "Crush: Check File",
+        "category": "Crush"
+      }
+    ],
+    "configuration": {
+      "title": "Crush",
+      "properties": {
+        "crush.crushcPath": {
+          "type": "string",
+          "default": "crushc",
+          "description": "Path to the crushc binary used for diagnostics. Defaults to whatever 'crushc' resolves to on PATH."
+        },
+        "crush.diagnostics.enable": {
+          "type": "boolean",
+          "default": true,
+          "description": "Run crushc on save/change and show its diagnostics as problems."
+        },
+        "crush.diagnostics.onChange": {
+          "type": "boolean",
+          "default": false,
+          "description": "Re-run diagnostics on every edit, not just on save. Off by default — crushc is a process spawn per run, not a persistent language server."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "lint": "eslint src --ext ts"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@types/vscode": "^1.85.0",
+    "typescript": "^5.3.0"
+  }
+}

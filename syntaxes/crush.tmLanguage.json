@@ -1,0 +1,248 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "Crush",
+  "scopeName": "source.crush",
+  "fileTypes": ["crush"],
+  "patterns": [
+    { "include": "#comments" },
+    { "include": "#polyglot-block" },
+    { "include": "#annotations" },
+    { "include": "#import-keywords" },
+    { "include": "#keywords" },
+    { "include": "#constants" },
+    { "include": "#numbers" },
+    { "include": "#strings" },
+    { "include": "#function-def" },
+    { "include": "#struct-def" },
+    { "include": "#function-call" },
+    { "include": "#operators" },
+    { "include": "#punctuation" }
+  ],
+  "repository": {
+    "comments": {
+      "patterns": [
+        {
+          "name": "comment.line.double-slash.crush",
+          "match": "//.*$"
+        },
+        {
+          "name": "comment.line.number-sign.crush",
+          "match": "#.*$"
+        }
+      ]
+    },
+
+    "polyglot-block": {
+      "comment": "@python { ... } / @javascript { ... } / @bash { ... } — an opaque foreign-language body, string-aware brace counting at the lexer level (EXO-47). Highlight the @lang tag as a keyword/tag and leave the body to VS Code's embedded-language grammar injection if one is configured; otherwise it renders as plain text, which is still correct (it's opaque to Crush itself).",
+      "begin": "(@)(python3?|javascript|js|es6|ecmascript|node|bash|sh|rust)\\s*(?=\\{)",
+      "beginCaptures": {
+        "1": { "name": "keyword.operator.at.crush" },
+        "2": { "name": "entity.name.tag.language.crush" }
+      },
+      "end": "(?<=\\})",
+      "patterns": [
+        {
+          "begin": "\\{",
+          "beginCaptures": { "0": { "name": "punctuation.section.embedded.begin.crush" } },
+          "end": "\\}",
+          "endCaptures": { "0": { "name": "punctuation.section.embedded.end.crush" } },
+          "name": "meta.embedded.block.crush",
+          "patterns": [
+            { "include": "#polyglot-body-strings" },
+            { "match": "[^{}]+" },
+            { "include": "#polyglot-block-nested" }
+          ]
+        }
+      ]
+    },
+    "polyglot-block-nested": {
+      "comment": "Recurse into nested braces so an unbalanced-looking count still highlights sanely (the real lexer does string-aware counting; this is a display-only approximation).",
+      "begin": "\\{",
+      "beginCaptures": { "0": { "name": "punctuation.section.embedded.begin.crush" } },
+      "end": "\\}",
+      "endCaptures": { "0": { "name": "punctuation.section.embedded.end.crush" } },
+      "patterns": [
+        { "include": "#polyglot-body-strings" },
+        { "match": "[^{}]+" },
+        { "include": "#polyglot-block-nested" }
+      ]
+    },
+    "polyglot-body-strings": {
+      "comment": "Strings inside a polyglot block can legitimately contain unbalanced braces (an f-string, a template literal) — this is exactly what EXO-47's string-aware brace counting handles at the lexer level; approximate it here so a stray '{' inside a quoted string doesn't desync the embedded-block highlighting.",
+      "patterns": [
+        { "match": "\"\"\"[\\s\\S]*?\"\"\"", "name": "string.quoted.triple.embedded.crush" },
+        { "match": "'''[\\s\\S]*?'''", "name": "string.quoted.triple.embedded.crush" },
+        { "match": "\"(?:[^\"\\\\]|\\\\.)*\"", "name": "string.quoted.double.embedded.crush" },
+        { "match": "'(?:[^'\\\\]|\\\\.)*'", "name": "string.quoted.single.embedded.crush" },
+        { "match": "`(?:[^`\\\\]|\\\\.)*`", "name": "string.quoted.template.embedded.crush" }
+      ]
+    },
+
+    "annotations": {
+      "comment": "AI-native CAST annotations: @invariant, @decision, @wip, @temporary, @errors, @covers, @relies-on, @complexity, @module, @exhaustive-match-sites, @does-not-write, @writes, @reads, @must-call-before, @must-call-after, @invalidates. See crush-frontend's IMPORT_KEYWORDS/annotation lexer list.",
+      "match": "(@)(invariant|decision|wip|temporary|errors|covers|relies-on|complexity|module|exhaustive-match-sites|does-not-write|writes|reads|must-call-before|must-call-after|invalidates)\\b",
+      "captures": {
+        "1": { "name": "keyword.operator.at.crush" },
+        "2": { "name": "storage.type.annotation.crush" }
+      }
+    },
+
+    "import-keywords": {
+      "comment": "@mcp / @cap / @lang import forms — 'use @mcp ...', 'use @cap ...', 'use @lang ...'.",
+      "match": "(@)(mcp|cap|lang|git|http|file)\\b",
+      "captures": {
+        "1": { "name": "keyword.operator.at.crush" },
+        "2": { "name": "keyword.control.import.crush" }
+      }
+    },
+
+    "keywords": {
+      "patterns": [
+        {
+          "name": "keyword.control.crush",
+          "match": "\\b(if|else|while|for|in|match|case|try|catch|throw|break|continue|return)\\b"
+        },
+        {
+          "name": "keyword.control.async.crush",
+          "match": "\\b(async|await|spawn|yield)\\b"
+        },
+        {
+          "name": "keyword.other.crush",
+          "match": "\\b(use|import)\\b"
+        },
+        {
+          "name": "storage.type.crush",
+          "match": "\\b(let|struct|fn)\\b"
+        },
+        {
+          "name": "storage.type.primitive.crush",
+          "match": "\\b(int|float|bool|string|null|any|void)\\b"
+        }
+      ]
+    },
+
+    "constants": {
+      "patterns": [
+        {
+          "name": "constant.language.boolean.crush",
+          "match": "\\b(true|false)\\b"
+        },
+        {
+          "name": "constant.language.null.crush",
+          "match": "\\bnull\\b"
+        }
+      ]
+    },
+
+    "numbers": {
+      "patterns": [
+        {
+          "name": "constant.numeric.float.crush",
+          "match": "\\b\\d+\\.\\d+([eE][+-]?\\d+)?\\b"
+        },
+        {
+          "name": "constant.numeric.integer.crush",
+          "match": "\\b\\d+\\b"
+        }
+      ]
+    },
+
+    "strings": {
+      "patterns": [
+        {
+          "name": "string.quoted.triple.crush",
+          "begin": "\"\"\"",
+          "end": "\"\"\"",
+          "patterns": [{ "include": "#string-escapes" }]
+        },
+        {
+          "name": "string.quoted.triple.crush",
+          "begin": "'''",
+          "end": "'''",
+          "patterns": [{ "include": "#string-escapes" }]
+        },
+        {
+          "name": "string.quoted.double.crush",
+          "begin": "\"",
+          "end": "\"",
+          "patterns": [{ "include": "#string-escapes" }]
+        },
+        {
+          "name": "string.quoted.single.crush",
+          "begin": "'",
+          "end": "'",
+          "patterns": [{ "include": "#string-escapes" }]
+        }
+      ]
+    },
+    "string-escapes": {
+      "patterns": [
+        {
+          "name": "constant.character.escape.crush",
+          "match": "\\\\(n|t|r|\\\\|\"|'|0)"
+        }
+      ]
+    },
+
+    "function-def": {
+      "match": "\\b(fn)\\s+([A-Za-z_\\u00c0-\\uffff][A-Za-z0-9_\\u00c0-\\uffff]*)",
+      "captures": {
+        "1": { "name": "storage.type.function.crush" },
+        "2": { "name": "entity.name.function.crush" }
+      }
+    },
+    "struct-def": {
+      "match": "\\b(struct)\\s+([A-Za-z_][A-Za-z0-9_]*)",
+      "captures": {
+        "1": { "name": "storage.type.struct.crush" },
+        "2": { "name": "entity.name.type.struct.crush" }
+      }
+    },
+
+    "function-call": {
+      "comment": "Both plain calls (print(...)) and dotted capability calls (io.print(...), fs.read(...)) — Crush's capabilities take no @ sigil, they're ordinary dotted-call syntax.",
+      "match": "\\b([A-Za-z_][A-Za-z0-9_]*(?:\\.[A-Za-z_][A-Za-z0-9_]*)*)\\s*(?=\\()",
+      "name": "entity.name.function.call.crush"
+    },
+
+    "operators": {
+      "patterns": [
+        {
+          "name": "keyword.operator.arrow.crush",
+          "match": "=>|->"
+        },
+        {
+          "name": "keyword.operator.comparison.crush",
+          "match": "==|!=|<=|>=|<|>"
+        },
+        {
+          "name": "keyword.operator.logical.crush",
+          "match": "&&|\\|\\||!"
+        },
+        {
+          "name": "keyword.operator.assignment.crush",
+          "match": "="
+        },
+        {
+          "name": "keyword.operator.arithmetic.crush",
+          "match": "\\*\\*|\\+|-|\\*|/|%"
+        },
+        {
+          "name": "keyword.operator.pipe.crush",
+          "match": "\\|>"
+        }
+      ]
+    },
+
+    "punctuation": {
+      "patterns": [
+        { "name": "punctuation.terminator.crush", "match": ";" },
+        { "name": "punctuation.separator.comma.crush", "match": "," },
+        { "name": "punctuation.accessor.crush", "match": "\\." },
+        { "name": "punctuation.section.braces.crush", "match": "[{}]" },
+        { "name": "punctuation.section.brackets.crush", "match": "[\\[\\]]" },
+        { "name": "punctuation.section.parens.crush", "match": "[()]" }
+      ]
+    }
+  }
+}
