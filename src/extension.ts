@@ -1,5 +1,11 @@
 import * as vscode from 'vscode';
 import { spawn } from 'child_process';
+import {
+    LanguageClient,
+    LanguageClientOptions,
+    ServerOptions,
+    TransportKind
+} from 'vscode-languageclient/node';
 
 /**
  * Shape of `crushc --message-format json`'s NDJSON records
@@ -13,6 +19,12 @@ import { spawn } from 'child_process';
  * parsed defensively; a line that isn't valid JSON is not an error in
  * this integration, it's just not a diagnostic. Verified empirically
  * against a real crushc build, not assumed from source reading alone.
+ *
+ * This whole crushc-spawn path is now the FALLBACK, used only when
+ * crush-lsp (https://github.com/nixpt/crush-lsp) isn't on PATH — see
+ * `activate()`. When the language server is active, it provides real
+ * diagnostics (via crush-frontend, not this NDJSON format) plus hover
+ * and completions this fallback never had.
  */
 interface CrushJsonDiagnostic {
     code: string;
@@ -25,17 +37,92 @@ interface CrushJsonDiagnostic {
 }
 
 let diagnosticCollection: vscode.DiagnosticCollection;
-let outputChannel: vscode.OutputChannel;
+let outputChannel: vscode.LogOutputChannel;
+let client: LanguageClient | undefined;
 
-export function activate(context: vscode.ExtensionContext) {
+export async function activate(context: vscode.ExtensionContext) {
     diagnosticCollection = vscode.languages.createDiagnosticCollection('crush');
     context.subscriptions.push(diagnosticCollection);
 
-    outputChannel = vscode.window.createOutputChannel('Crush');
+    outputChannel = vscode.window.createOutputChannel('Crush', { log: true });
     context.subscriptions.push(outputChannel);
 
     const config = () => vscode.workspace.getConfiguration('crush');
 
+    let lspActive = false;
+    if (config().get<boolean>('languageServer.enable', true)) {
+        lspActive = await tryStartLanguageClient(
+            context,
+            config().get<string>('languageServer.path', 'crush-lsp')
+        );
+    }
+
+    if (!lspActive) {
+        registerCrushcFallback(context, config);
+    }
+
+    context.subscriptions.push(
+        vscode.commands.registerCommand('crush.checkFile', () => {
+            if (lspActive) {
+                void vscode.window.showInformationMessage(
+                    'Diagnostics are live via crush-lsp — no manual check needed.'
+                );
+                return;
+            }
+            const editor = vscode.window.activeTextEditor;
+            if (editor) {
+                void lintDocument(editor.document);
+            }
+        })
+    );
+}
+
+export async function deactivate(): Promise<void> {
+    diagnosticCollection?.dispose();
+    await client?.stop();
+}
+
+/**
+ * Try to start the crush-lsp language client. Returns false (without
+ * throwing, without showing VS Code's own noisy server-crash UI) if the
+ * binary isn't found or fails to initialize, so the caller can fall back
+ * to the crushc-spawn path instead.
+ */
+async function tryStartLanguageClient(
+    context: vscode.ExtensionContext,
+    lspPath: string
+): Promise<boolean> {
+    const serverOptions: ServerOptions = {
+        command: lspPath,
+        transport: TransportKind.stdio
+    };
+
+    const clientOptions: LanguageClientOptions = {
+        documentSelector: [{ scheme: 'file', language: 'crush' }],
+        outputChannel
+    };
+
+    client = new LanguageClient('crush-lsp', 'Crush Language Server', serverOptions, clientOptions);
+
+    try {
+        await client.start();
+    } catch (err) {
+        outputChannel.appendLine(
+            `crush-lsp not available at '${lspPath}' (${err}) — falling back to crushc-spawn diagnostics.`
+        );
+        client = undefined;
+        return false;
+    }
+
+    context.subscriptions.push({ dispose: () => void client?.stop() });
+    outputChannel.appendLine(`crush-lsp started (${lspPath}).`);
+    return true;
+}
+
+function registerCrushcFallback(
+    context: vscode.ExtensionContext,
+    config: () => vscode.WorkspaceConfiguration
+): void {
     const runDiagnostics = (document: vscode.TextDocument) => {
         if (document.languageId !== 'crush') {
             return;
@@ -68,19 +155,6 @@ export function activate(context: vscode.ExtensionContext) {
 
     // Lint whatever's already open when the extension activates.
     vscode.workspace.textDocuments.forEach(runDiagnostics);
-
-    context.subscriptions.push(
-        vscode.commands.registerCommand('crush.checkFile', () => {
-            const editor = vscode.window.activeTextEditor;
-            if (editor) {
-                void lintDocument(editor.document);
-            }
-        })
-    );
-}
-
-export function deactivate() {
-    diagnosticCollection?.dispose();
 }
 
 async function lintDocument(document: vscode.TextDocument): Promise<void> {

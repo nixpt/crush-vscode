@@ -58,12 +58,22 @@
         "crush.diagnostics.enable": {
           "type": "boolean",
           "default": true,
-          "description": "Run crushc on save/change and show its diagnostics as problems."
+          "description": "Run crushc on save/change and show its diagnostics as problems. Only used as a fallback when the crush-lsp language server isn't available — see crush.languageServer.enable."
         },
         "crush.diagnostics.onChange": {
           "type": "boolean",
           "default": false,
-          "description": "Re-run diagnostics on every edit, not just on save. Off by default — crushc is a process spawn per run, not a persistent language server."
+          "description": "Re-run crushc-fallback diagnostics on every edit, not just on save. Irrelevant when the language server is active — it already gets live document sync."
+        },
+        "crush.languageServer.enable": {
+          "type": "boolean",
+          "default": true,
+          "description": "Use crush-lsp for diagnostics, hover, and completions if it's found on PATH. Falls back to spawning crushc directly (crush.diagnostics.*) when it isn't."
+        },
+        "crush.languageServer.path": {
+          "type": "string",
+          "default": "crush-lsp",
+          "description": "Path to the crush-lsp binary. Defaults to whatever 'crush-lsp' resolves to on PATH."
         }
       }
     }
@@ -78,5 +88,8 @@
     "@types/node": "^20.10.0",
     "@types/vscode": "^1.85.0",
     "typescript": "^5.3.0"
+  },
+  "dependencies": {
+    "vscode-languageclient": "^10.1.0"
   }
 }
