@@ -17,11 +17,12 @@ Syntax highlighting and compiler diagnostics for the [Crush](https://github.com/
 
 ## What this is not (yet)
 
-No language server, no autocomplete, no hover, no go-to-definition. Diagnostics are a process
-spawn per lint (on save by default, or on every edit if `crush.diagnostics.onChange` is
-enabled), not a persistent LSP session — deliberately simple for v1. `crush-symbols`
-(structural code-intel: find/callers/callees/impact/trace) is the natural foundation for a
-real language server if that's wanted later; not built here.
+A real language server (`crush-lsp`) is now wired in as the primary diagnostics/hover
+backend, with the original `crushc`-spawn diagnostics kept as a fallback if `crush-lsp`
+isn't found on `PATH` — see the "Wire crush-lsp as the primary diagnostics/hover backend"
+commit. `polydex` (structural code-intel: find/callers/callees/impact/trace — renamed
+from `crush-symbols` 2026-07-15) is the natural foundation if `crush-lsp` ever needs
+richer symbol data than its own analysis provides.
 
 ## Requirements
 
