@@ -1,0 +1,1255 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/nixpt/crush-ast/crush-cast.schema.json",
+  "title": "Crush CAST program",
+  "description": "CAST syntax tree (.cast.json). Generated from crush-cast's ts-rs bindings; helper types (AI nodes, manifests) are left open.",
+  "type": "object",
+  "required": [
+    "cast_version",
+    "entry",
+    "lang",
+    "functions"
+  ],
+  "properties": {
+    "cast_version": {
+      "type": "string"
+    },
+    "entry": {
+      "type": "string",
+      "description": "name of the entry function"
+    },
+    "lang": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "functions": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/Function"
+      }
+    },
+    "ai_meta": {},
+    "manifest": {},
+    "exhaustive_sites": {
+      "type": "array"
+    },
+    "wip": {},
+    "temporaries": {
+      "type": "array"
+    },
+    "decisions": {
+      "type": "array"
+    }
+  },
+  "$defs": {
+    "Function": {
+      "type": "object",
+      "required": [
+        "body"
+      ],
+      "properties": {
+        "params": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/$defs/CastType"
+              }
+            ],
+            "minItems": 2,
+            "maxItems": 2
+          }
+        },
+        "body": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Statement"
+          }
+        },
+        "meta": {
+          "type": "object"
+        },
+        "annotations": {}
+      }
+    },
+    "Statement": {
+      "oneOf": [
+        {
+          "type": "object",
+          "title": "VarDecl",
+          "properties": {
+            "type": {
+              "const": "VarDecl"
+            },
+            "name": {
+              "type": "string"
+            },
+            "value": {
+              "$ref": "#/$defs/Expression"
+            },
+            "type_hint": {
+              "$ref": "#/$defs/CastType"
+            },
+            "meta": {
+              "type": "object"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "x-fields": [
+            "name",
+            "value",
+            "type_hint",
+            "meta"
+          ]
+        },
+        {
+          "type": "object",
+          "title": "Export",
+          "properties": {
+            "type": {
+              "const": "Export"
+            },
+            "name": {
+              "type": "string"
+            },
+            "value": {
+              "$ref": "#/$defs/Expression"
+            },
+            "meta": {
+              "type": "object"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "x-fields": [
+            "name",
+            "value",
+            "meta"
+          ]
+        },
+        {
+          "type": "object",
+          "title": "ExprStmt",
+          "properties": {
+            "type": {
+              "const": "ExprStmt"
+            },
+            "expr": {
+              "$ref": "#/$defs/Expression"
+            },
+            "meta": {
+              "type": "object"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "x-fields": [
+            "expr",
+            "meta"
+          ]
+        },
+        {
+          "type": "object",
+          "title": "If",
+          "properties": {
+            "type": {
+              "const": "If"
+            },
+            "condition": {
+              "$ref": "#/$defs/Expression"
+            },
+            "then_body": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/Statement"
+              }
+            },
+            "else_body": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/$defs/Statement"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "meta": {
+              "type": "object"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "x-fields": [
+            "condition",
+            "then_body",
+            "else_body",
+            "meta"
+          ]
+        },
+        {
+          "type": "object",
+          "title": "While",
+          "properties": {
+            "type": {
+              "const": "While"
+            },
+            "condition": {
+              "$ref": "#/$defs/Expression"
+            },
+            "body": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/Statement"
+              }
+            },
+            "meta": {
+              "type": "object"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "x-fields": [
+            "condition",
+            "body",
+            "meta"
+          ]
+        },
+        {
+          "type": "object",
+          "title": "For",
+          "properties": {
+            "type": {
+              "const": "For"
+            },
+            "variable": {
+              "type": "string"
+            },
+            "iterable": {
+              "$ref": "#/$defs/Expression"
+            },
+            "body": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/Statement"
+              }
+            },
+            "meta": {
+              "type": "object"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "x-fields": [
+            "variable",
+            "iterable",
+            "body",
+            "meta"
+          ]
+        },
+        {
+          "type": "object",
+          "title": "Return",
+          "properties": {
+            "type": {
+              "const": "Return"
+            },
+            "value": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Expression"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "meta": {
+              "type": "object"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "x-fields": [
+            "value",
+            "meta"
+          ]
+        },
+        {
+          "type": "object",
+          "title": "TryCatch",
+          "properties": {
+            "type": {
+              "const": "TryCatch"
+            },
+            "body": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/Statement"
+              }
+            },
+            "error_var": {
+              "type": "string"
+            },
+            "handler": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/Statement"
+              }
+            },
+            "meta": {
+              "type": "object"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "x-fields": [
+            "body",
+            "error_var",
+            "handler",
+            "meta"
+          ]
+        },
+        {
+          "type": "object",
+          "title": "Throw",
+          "properties": {
+            "type": {
+              "const": "Throw"
+            },
+            "value": {
+              "$ref": "#/$defs/Expression"
+            },
+            "meta": {
+              "type": "object"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "x-fields": [
+            "value",
+            "meta"
+          ]
+        },
+        {
+          "type": "object",
+          "title": "FunctionDef",
+          "properties": {
+            "type": {
+              "const": "FunctionDef"
+            },
+            "name": {
+              "type": "string"
+            },
+            "params": {
+              "type": "array",
+              "items": {
+                "type": "array",
+                "prefixItems": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "$ref": "#/$defs/CastType"
+                  }
+                ],
+                "minItems": 2,
+                "maxItems": 2
+              }
+            },
+            "body": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/Statement"
+              }
+            },
+            "meta": {
+              "type": "object"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "x-fields": [
+            "name",
+            "params",
+            "body",
+            "meta"
+          ]
+        },
+        {
+          "type": "object",
+          "title": "SetField",
+          "properties": {
+            "type": {
+              "const": "SetField"
+            },
+            "target": {
+              "$ref": "#/$defs/Expression"
+            },
+            "field": {
+              "type": "string"
+            },
+            "value": {
+              "$ref": "#/$defs/Expression"
+            },
+            "meta": {
+              "type": "object"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "x-fields": [
+            "target",
+            "field",
+            "value",
+            "meta"
+          ]
+        },
+        {
+          "type": "object",
+          "title": "LangBlock",
+          "properties": {
+            "type": {
+              "const": "LangBlock"
+            },
+            "lang": {
+              "type": "string"
+            },
+            "code": {
+              "type": "string"
+            },
+            "variables": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "imports": {
+              "type": "array",
+              "items": {}
+            },
+            "meta": {
+              "type": "object"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "x-fields": [
+            "lang",
+            "code",
+            "variables",
+            "imports",
+            "meta"
+          ]
+        },
+        {
+          "type": "object",
+          "title": "Import",
+          "properties": {
+            "type": {
+              "const": "Import"
+            },
+            "import": {},
+            "meta": {
+              "type": "object"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "x-fields": [
+            "import",
+            "meta"
+          ]
+        },
+        {
+          "type": "object",
+          "title": "StructDef",
+          "properties": {
+            "type": {
+              "const": "StructDef"
+            },
+            "name": {
+              "type": "string"
+            },
+            "fields": {
+              "type": "array",
+              "items": {
+                "type": "array",
+                "prefixItems": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "$ref": "#/$defs/CastType"
+                  }
+                ],
+                "minItems": 2,
+                "maxItems": 2
+              }
+            },
+            "meta": {
+              "type": "object"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "x-fields": [
+            "name",
+            "fields",
+            "meta"
+          ]
+        },
+        {
+          "type": "object",
+          "title": "Break",
+          "properties": {
+            "type": {
+              "const": "Break"
+            },
+            "meta": {
+              "type": "object"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "x-fields": [
+            "meta"
+          ]
+        },
+        {
+          "type": "object",
+          "title": "Continue",
+          "properties": {
+            "type": {
+              "const": "Continue"
+            },
+            "meta": {
+              "type": "object"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "x-fields": [
+            "meta"
+          ]
+        },
+        {
+          "type": "object",
+          "title": "DomMutate",
+          "properties": {
+            "type": {
+              "const": "DomMutate"
+            },
+            "target": {
+              "$ref": "#/$defs/Expression"
+            },
+            "mutation_type": {},
+            "value": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Expression"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "value2": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Expression"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "meta": {
+              "type": "object"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "x-fields": [
+            "target",
+            "mutation_type",
+            "value",
+            "value2",
+            "meta"
+          ]
+        },
+        {
+          "type": "object",
+          "title": "DomEventListener",
+          "properties": {
+            "type": {
+              "const": "DomEventListener"
+            },
+            "target": {
+              "$ref": "#/$defs/Expression"
+            },
+            "event": {
+              "type": "string"
+            },
+            "callback": {
+              "$ref": "#/$defs/Expression"
+            },
+            "meta": {
+              "type": "object"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "x-fields": [
+            "target",
+            "event",
+            "callback",
+            "meta"
+          ]
+        },
+        {
+          "type": "object",
+          "title": "AI",
+          "properties": {
+            "type": {
+              "const": "AI"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "x-fields": []
+        }
+      ]
+    },
+    "Expression": {
+      "oneOf": [
+        {
+          "type": "object",
+          "title": "IntLiteral",
+          "properties": {
+            "type": {
+              "const": "IntLiteral"
+            },
+            "value": {
+              "type": "number"
+            },
+            "meta": {
+              "type": "object"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "x-fields": [
+            "value",
+            "meta"
+          ]
+        },
+        {
+          "type": "object",
+          "title": "FloatLiteral",
+          "properties": {
+            "type": {
+              "const": "FloatLiteral"
+            },
+            "value": {
+              "type": "number"
+            },
+            "meta": {
+              "type": "object"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "x-fields": [
+            "value",
+            "meta"
+          ]
+        },
+        {
+          "type": "object",
+          "title": "StringLiteral",
+          "properties": {
+            "type": {
+              "const": "StringLiteral"
+            },
+            "value": {
+              "type": "string"
+            },
+            "meta": {
+              "type": "object"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "x-fields": [
+            "value",
+            "meta"
+          ]
+        },
+        {
+          "type": "object",
+          "title": "BoolLiteral",
+          "properties": {
+            "type": {
+              "const": "BoolLiteral"
+            },
+            "value": {
+              "type": "boolean"
+            },
+            "meta": {
+              "type": "object"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "x-fields": [
+            "value",
+            "meta"
+          ]
+        },
+        {
+          "type": "object",
+          "title": "NullLiteral",
+          "properties": {
+            "type": {
+              "const": "NullLiteral"
+            },
+            "meta": {
+              "type": "object"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "x-fields": [
+            "meta"
+          ]
+        },
+        {
+          "type": "object",
+          "title": "Var",
+          "properties": {
+            "type": {
+              "const": "Var"
+            },
+            "name": {
+              "type": "string"
+            },
+            "meta": {
+              "type": "object"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "x-fields": [
+            "name",
+            "meta"
+          ]
+        },
+        {
+          "type": "object",
+          "title": "BinaryOp",
+          "properties": {
+            "type": {
+              "const": "BinaryOp"
+            },
+            "operator": {
+              "type": "string"
+            },
+            "left": {
+              "$ref": "#/$defs/Expression"
+            },
+            "right": {
+              "$ref": "#/$defs/Expression"
+            },
+            "meta": {
+              "type": "object"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "x-fields": [
+            "operator",
+            "left",
+            "right",
+            "meta"
+          ]
+        },
+        {
+          "type": "object",
+          "title": "UnaryOp",
+          "properties": {
+            "type": {
+              "const": "UnaryOp"
+            },
+            "operator": {
+              "type": "string"
+            },
+            "operand": {
+              "$ref": "#/$defs/Expression"
+            },
+            "meta": {
+              "type": "object"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "x-fields": [
+            "operator",
+            "operand",
+            "meta"
+          ]
+        },
+        {
+          "type": "object",
+          "title": "Call",
+          "properties": {
+            "type": {
+              "const": "Call"
+            },
+            "function": {
+              "type": "string"
+            },
+            "args": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/Expression"
+              }
+            },
+            "meta": {
+              "type": "object"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "x-fields": [
+            "function",
+            "args",
+            "meta"
+          ]
+        },
+        {
+          "type": "object",
+          "title": "CapabilityCall",
+          "properties": {
+            "type": {
+              "const": "CapabilityCall"
+            },
+            "name": {
+              "type": "string"
+            },
+            "args": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/Expression"
+              }
+            },
+            "meta": {
+              "type": "object"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "x-fields": [
+            "name",
+            "args",
+            "meta"
+          ]
+        },
+        {
+          "type": "object",
+          "title": "Pipeline",
+          "properties": {
+            "type": {
+              "const": "Pipeline"
+            },
+            "segments": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/Expression"
+              }
+            },
+            "meta": {
+              "type": "object"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "x-fields": [
+            "segments",
+            "meta"
+          ]
+        },
+        {
+          "type": "object",
+          "title": "Spawn",
+          "properties": {
+            "type": {
+              "const": "Spawn"
+            },
+            "function": {
+              "type": "string"
+            },
+            "args": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/Expression"
+              }
+            },
+            "meta": {
+              "type": "object"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "x-fields": [
+            "function",
+            "args",
+            "meta"
+          ]
+        },
+        {
+          "type": "object",
+          "title": "Lambda",
+          "properties": {
+            "type": {
+              "const": "Lambda"
+            },
+            "params": {
+              "type": "array",
+              "items": {
+                "type": "array",
+                "prefixItems": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "$ref": "#/$defs/CastType"
+                  }
+                ],
+                "minItems": 2,
+                "maxItems": 2
+              }
+            },
+            "body": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/Statement"
+              }
+            },
+            "meta": {
+              "type": "object"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "x-fields": [
+            "params",
+            "body",
+            "meta"
+          ]
+        },
+        {
+          "type": "object",
+          "title": "Yield",
+          "properties": {
+            "type": {
+              "const": "Yield"
+            },
+            "meta": {
+              "type": "object"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "x-fields": [
+            "meta"
+          ]
+        },
+        {
+          "type": "object",
+          "title": "NewStruct",
+          "properties": {
+            "type": {
+              "const": "NewStruct"
+            },
+            "name": {
+              "type": "string"
+            },
+            "meta": {
+              "type": "object"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "x-fields": [
+            "name",
+            "meta"
+          ]
+        },
+        {
+          "type": "object",
+          "title": "GetField",
+          "properties": {
+            "type": {
+              "const": "GetField"
+            },
+            "target": {
+              "$ref": "#/$defs/Expression"
+            },
+            "field": {
+              "type": "string"
+            },
+            "meta": {
+              "type": "object"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "x-fields": [
+            "target",
+            "field",
+            "meta"
+          ]
+        },
+        {
+          "type": "object",
+          "title": "Range",
+          "properties": {
+            "type": {
+              "const": "Range"
+            },
+            "start": {
+              "$ref": "#/$defs/Expression"
+            },
+            "end": {
+              "$ref": "#/$defs/Expression"
+            },
+            "meta": {
+              "type": "object"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "x-fields": [
+            "start",
+            "end",
+            "meta"
+          ]
+        },
+        {
+          "type": "object",
+          "title": "Await",
+          "properties": {
+            "type": {
+              "const": "Await"
+            },
+            "expression": {
+              "$ref": "#/$defs/Expression"
+            },
+            "meta": {
+              "type": "object"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "x-fields": [
+            "expression",
+            "meta"
+          ]
+        },
+        {
+          "type": "object",
+          "title": "ArrayLiteral",
+          "properties": {
+            "type": {
+              "const": "ArrayLiteral"
+            },
+            "elements": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/Expression"
+              }
+            },
+            "meta": {
+              "type": "object"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "x-fields": [
+            "elements",
+            "meta"
+          ]
+        },
+        {
+          "type": "object",
+          "title": "ObjectLiteral",
+          "properties": {
+            "type": {
+              "const": "ObjectLiteral"
+            },
+            "properties": {
+              "type": "array",
+              "items": {}
+            },
+            "meta": {
+              "type": "object"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "x-fields": [
+            "properties",
+            "meta"
+          ]
+        },
+        {
+          "type": "object",
+          "title": "Index",
+          "properties": {
+            "type": {
+              "const": "Index"
+            },
+            "target": {
+              "$ref": "#/$defs/Expression"
+            },
+            "index": {
+              "$ref": "#/$defs/Expression"
+            },
+            "meta": {
+              "type": "object"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "x-fields": [
+            "target",
+            "index",
+            "meta"
+          ]
+        },
+        {
+          "type": "object",
+          "title": "DomQuery",
+          "properties": {
+            "type": {
+              "const": "DomQuery"
+            },
+            "query_type": {},
+            "selector": {
+              "$ref": "#/$defs/Expression"
+            },
+            "meta": {
+              "type": "object"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "x-fields": [
+            "query_type",
+            "selector",
+            "meta"
+          ]
+        },
+        {
+          "type": "object",
+          "title": "Match",
+          "properties": {
+            "type": {
+              "const": "Match"
+            },
+            "expression": {
+              "$ref": "#/$defs/Expression"
+            },
+            "arms": {
+              "type": "array",
+              "items": {}
+            },
+            "meta": {
+              "type": "object"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "x-fields": [
+            "expression",
+            "arms",
+            "meta"
+          ]
+        },
+        {
+          "type": "object",
+          "title": "AI",
+          "properties": {
+            "type": {
+              "const": "AI"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "x-fields": []
+        }
+      ]
+    },
+    "CastType": {
+      "description": "a CastType: unit variants are strings (\"Int\"), others {\"Array\": \u2026}",
+      "type": [
+        "string",
+        "object"
+      ]
+    }
+  }
+}

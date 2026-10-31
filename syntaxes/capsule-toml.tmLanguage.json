@@ -1,0 +1,44 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "Crush Capsule Manifest (TOML)",
+  "scopeName": "source.toml.capsule",
+  "fileTypes": ["toml"],
+  "patterns": [
+    { "include": "#comment" },
+    { "include": "#table" },
+    { "include": "#key-value" },
+    { "include": "#value" }
+  ],
+  "repository": {
+    "comment": { "match": "#.*$", "name": "comment.line.number-sign.toml" },
+    "table": {
+      "match": "^\\s*(\\[\\[?)\\s*([^\\]]+?)\\s*(\\]\\]?)",
+      "captures": {
+        "1": { "name": "punctuation.definition.table.toml" },
+        "2": { "name": "entity.name.section.toml" },
+        "3": { "name": "punctuation.definition.table.toml" }
+      }
+    },
+    "key-value": {
+      "begin": "^\\s*((?:[A-Za-z0-9_-]+|\"[^\"]*\"|'[^']*')(?:\\s*\\.\\s*(?:[A-Za-z0-9_-]+|\"[^\"]*\"|'[^']*'))*)\\s*(=)",
+      "beginCaptures": {
+        "1": { "name": "variable.other.key.toml" },
+        "2": { "name": "keyword.operator.assignment.toml" }
+      },
+      "end": "$|(?=\\s*#)",
+      "patterns": [{ "include": "#value" }]
+    },
+    "value": {
+      "patterns": [
+        { "include": "#comment" },
+        { "match": "\"\"\"", "name": "string.quoted.triple.basic.toml" },
+        { "begin": "\"", "end": "\"", "name": "string.quoted.double.toml", "patterns": [{ "match": "\\\\.", "name": "constant.character.escape.toml" }] },
+        { "begin": "'", "end": "'", "name": "string.quoted.single.toml" },
+        { "match": "\\b(?:true|false)\\b", "name": "constant.language.boolean.toml" },
+        { "match": "[+-]?\\d[\\d_]*(?:\\.\\d[\\d_]*)?(?:[eE][+-]?\\d+)?\\b|0x[0-9a-fA-F_]+", "name": "constant.numeric.toml" },
+        { "match": "\\d{4}-\\d{2}-\\d{2}(?:[Tt ][\\d:.]+(?:Z|[+-]\\d{2}:\\d{2})?)?", "name": "constant.other.datetime.toml" },
+        { "match": "[\\[\\]{},]", "name": "punctuation.separator.toml" }
+      ]
+    }
+  }
+}

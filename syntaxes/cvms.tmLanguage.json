@@ -1,0 +1,135 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "CVM1 Assembly",
+  "scopeName": "source.cvms",
+  "fileTypes": [
+    "cvms"
+  ],
+  "patterns": [
+    {
+      "include": "#comments"
+    },
+    {
+      "include": "#cosm"
+    },
+    {
+      "include": "#func"
+    },
+    {
+      "include": "#label"
+    },
+    {
+      "include": "#branch"
+    },
+    {
+      "include": "#call"
+    },
+    {
+      "include": "#opcodes"
+    },
+    {
+      "include": "#strings"
+    },
+    {
+      "include": "#numbers"
+    },
+    {
+      "include": "#constants"
+    }
+  ],
+  "repository": {
+    "comments": {
+      "match": "[;#].*$",
+      "name": "comment.line.cvms"
+    },
+    "cosm": {
+      "begin": "^\\s*(\\.cosm)\\b",
+      "beginCaptures": {
+        "1": {
+          "name": "keyword.control.directive.cvms"
+        }
+      },
+      "end": "$",
+      "patterns": [
+        {
+          "include": "source.json"
+        }
+      ]
+    },
+    "func": {
+      "match": "^\\s*(\\.func)\\s+([A-Za-z_][A-Za-z0-9_]*)(?:\\s+(\\d+))?",
+      "captures": {
+        "1": {
+          "name": "keyword.control.directive.cvms"
+        },
+        "2": {
+          "name": "entity.name.function.cvms"
+        },
+        "3": {
+          "name": "constant.numeric.arity.cvms"
+        }
+      }
+    },
+    "label": {
+      "match": "^\\s*([A-Za-z_][A-Za-z0-9_]*):",
+      "captures": {
+        "1": {
+          "name": "entity.name.label.cvms"
+        }
+      }
+    },
+    "branch": {
+      "match": "\\b(JMP|JZ|JNZ)\\s+([A-Za-z_][A-Za-z0-9_]*)\\b",
+      "captures": {
+        "1": {
+          "name": "keyword.control.cvms"
+        },
+        "2": {
+          "name": "entity.name.label.cvms"
+        }
+      }
+    },
+    "call": {
+      "match": "\\b(CALL|MAKE_CLOSURE)\\s+([A-Za-z_][A-Za-z0-9_]*)\\b",
+      "captures": {
+        "1": {
+          "name": "keyword.control.cvms"
+        },
+        "2": {
+          "name": "entity.name.function.cvms"
+        }
+      }
+    },
+    "opcodes": {
+      "patterns": [
+        {
+          "match": "\\b(CALL_VALUE_APPLY|MAKE_CLOSURE|CALL_MEMBER|CALL_VALUE|ENTER_TRY|EXEC_LANG|CAP_CALL|EXIT_TRY|AWAIT|SPAWN|THROW|YIELD|CALL|HALT|JMP|JNZ|RET|JZ)\\b",
+          "name": "keyword.control.opcode.cvms"
+        },
+        {
+          "match": "\\b(AI_KNOWLEDGE_SHARING|AI_AGENT_DELEGATION|AI_GOAL_DECLARATION|AI_PROGRESS_UPDATE|AI_SEMANTIC_MATCH|AI_CONTEXT_AWARE|AI_LEARNING_LOOP|STR_STARTS_WITH|AI_SYNTHESIZE|STR_ENDS_WITH|AI_TOOLCHAIN|STR_CONTAINS|STR_TO_LOWER|STR_TO_UPPER|STR_REPLACE|VECTOR_PUSH|DEL_MEMBER|GET_MEMBER|HAS_MEMBER|MAKE_RANGE|MATH_FLOOR|MATH_ROUND|NEW_RECORD|NEW_VECTOR|SET_MEMBER|TUPLE_PUSH|CONSTRUCT|GET_FIELD|LIST_PUSH|LOAD_KIND|MATH_CEIL|MATH_SQRT|NEW_ARRAY|NEW_TUPLE|PUSH_BOOL|PUSH_NULL|SET_FIELD|STR_SPLIT|AI_QUERY|ARR_PUSH|CELL_GET|CELL_NEW|CELL_SET|GET_SLOT|MAP_KEYS|MATH_ABS|MATH_POW|NEW_LIST|PUSH_F64|PUSH_STR|SET_PUSH|SET_SLOT|STR_JOIN|STR_TRIM|ARR_GET|ARR_LEN|ARR_POP|ARR_SET|IS_KIND|MAT_MUL|NEW_OBJ|NEW_SET|VEC_ADD|VEC_DOT|BITAND|BITNOT|BITXOR|TYPEOF|BITOR|PRINT|STORE|CAST|COPY|LOAD|PICK|PUSH|ROLL|SWAP|ADD|AND|DIV|DUP|MOD|MUL|NEG|NOP|NOT|POP|ROT|SHL|SHR|SUB|EQ|GE|GT|LE|LT|NE|OR)\\b",
+          "name": "keyword.other.opcode.cvms"
+        }
+      ]
+    },
+    "strings": {
+      "begin": "\"",
+      "end": "\"",
+      "name": "string.quoted.double.cvms",
+      "patterns": [
+        {
+          "match": "\\\\.",
+          "name": "constant.character.escape.cvms"
+        }
+      ]
+    },
+    "numbers": {
+      "match": "(?<![\\w.])-?(?:0[xX][0-9a-fA-F]+|0[bB][01]+|\\d+(?:\\.\\d+)?(?:[eE][+-]?\\d+)?)\\b",
+      "name": "constant.numeric.cvms"
+    },
+    "constants": {
+      "match": "\\b(?:true|false|null)\\b",
+      "name": "constant.language.cvms"
+    }
+  }
+}

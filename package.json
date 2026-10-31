@@ -31,6 +31,36 @@
           ".crush"
         ],
         "configuration": "./language-configuration.json"
+      },
+      {
+        "id": "cvms",
+        "aliases": [
+          "CVM1 Assembly",
+          "cvms"
+        ],
+        "extensions": [
+          ".cvms"
+        ],
+        "configuration": "./language-configuration.cvms.json"
+      },
+      {
+        "id": "crush-capsule",
+        "aliases": [
+          "Crush Capsule Manifest",
+          "capsule.toml"
+        ],
+        "filenames": [
+          "capsule.toml"
+        ],
+        "configuration": "./language-configuration.toml.json"
+      },
+      {
+        "id": "json",
+        "extensions": [
+          ".cast",
+          ".casm",
+          ".sno"
+        ]
       }
     ],
     "grammars": [
@@ -38,6 +68,19 @@
         "language": "crush",
         "scopeName": "source.crush",
         "path": "./syntaxes/crush.tmLanguage.json"
+      },
+      {
+        "language": "cvms",
+        "scopeName": "source.cvms",
+        "path": "./syntaxes/cvms.tmLanguage.json",
+        "embeddedLanguages": {
+          "source.json": "json"
+        }
+      },
+      {
+        "language": "crush-capsule",
+        "scopeName": "source.toml.capsule",
+        "path": "./syntaxes/capsule-toml.tmLanguage.json"
       }
     ],
     "commands": [
@@ -58,12 +101,12 @@
         "crush.diagnostics.enable": {
           "type": "boolean",
           "default": true,
-          "description": "Run crushc on save/change and show its diagnostics as problems. Only used as a fallback when the crush-lsp language server isn't available — see crush.languageServer.enable."
+          "description": "Run crushc on save/change and show its diagnostics as problems. Only used as a fallback when the crush-lsp language server isn't available \u2014 see crush.languageServer.enable."
         },
         "crush.diagnostics.onChange": {
           "type": "boolean",
           "default": false,
-          "description": "Re-run crushc-fallback diagnostics on every edit, not just on save. Irrelevant when the language server is active — it already gets live document sync."
+          "description": "Re-run crushc-fallback diagnostics on every edit, not just on save. Irrelevant when the language server is active \u2014 it already gets live document sync."
         },
         "crush.languageServer.enable": {
           "type": "boolean",
@@ -76,7 +119,24 @@
           "description": "Path to the crush-lsp binary. Defaults to whatever 'crush-lsp' resolves to on PATH."
         }
       }
-    }
+    },
+    "jsonValidation": [
+      {
+        "fileMatch": [
+          "*.cast.json",
+          "*.cast"
+        ],
+        "url": "./schemas/cast.schema.json"
+      },
+      {
+        "fileMatch": [
+          "*.casm",
+          "*.sno",
+          "*.casm.json"
+        ],
+        "url": "./schemas/casm.schema.json"
+      }
+    ]
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
