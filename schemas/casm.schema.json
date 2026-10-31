@@ -1,0 +1,737 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/nixpt/crush-ast/crush-casm.schema.json",
+  "title": "Crush CASM program",
+  "description": "CASM IR (.casm / .sno / .casm.json), the JSON form of casm::Program. Derived from crates/crush-cast/SCHEMA.md.",
+  "type": "object",
+  "required": [
+    "version",
+    "functions"
+  ],
+  "properties": {
+    "version": {
+      "type": "string",
+      "description": "CASM format version; the major must match the runtime's"
+    },
+    "functions": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/Function"
+      }
+    },
+    "manifest": {
+      "type": "object"
+    },
+    "lang": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "$defs": {
+    "Function": {
+      "type": "object",
+      "required": [
+        "body"
+      ],
+      "properties": {
+        "params": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "locals": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "body": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Instruction"
+          }
+        }
+      }
+    },
+    "Instruction": {
+      "type": "object",
+      "required": [
+        "op"
+      ],
+      "properties": {
+        "op": {
+          "type": "string",
+          "examples": [
+            "add",
+            "ai_adaptation_request",
+            "ai_agent_delegation",
+            "ai_capability_discovery",
+            "ai_context_aware",
+            "ai_goal_decl",
+            "ai_goal_declaration",
+            "ai_knowledge_share",
+            "ai_knowledge_sharing",
+            "ai_learning_loop",
+            "ai_progress_update",
+            "ai_query",
+            "ai_semantic_match",
+            "ai_semantic_switch",
+            "ai_synthesize",
+            "ai_tool_chain",
+            "ai_toolchain",
+            "and",
+            "arr_get",
+            "arr_len",
+            "arr_pop",
+            "arr_push",
+            "arr_set",
+            "array_pop",
+            "array_push",
+            "await",
+            "bit_and",
+            "bit_not",
+            "bit_or",
+            "bit_xor",
+            "break",
+            "call",
+            "call_host",
+            "call_interface",
+            "call_member",
+            "call_value_apply",
+            "cap_call",
+            "cast",
+            "construct",
+            "continue",
+            "copy",
+            "del_member",
+            "div",
+            "dom_event_listener",
+            "dom_mutate",
+            "dom_query",
+            "dup",
+            "enter_try",
+            "eq",
+            "exec_lang",
+            "exit_try",
+            "export_var",
+            "ge",
+            "get_field",
+            "get_member",
+            "get_slot",
+            "gt",
+            "halt",
+            "has_member",
+            "import_var",
+            "index",
+            "is_kind",
+            "jmp",
+            "jmp_if",
+            "jmp_if_not",
+            "le",
+            "len",
+            "list_push",
+            "load",
+            "load_kind",
+            "lt",
+            "make_range",
+            "math_abs",
+            "math_ceil",
+            "math_floor",
+            "math_pow",
+            "math_round",
+            "math_sqrt",
+            "mod",
+            "mul",
+            "ne",
+            "neg",
+            "new_array",
+            "new_list",
+            "new_obj",
+            "new_set",
+            "new_struct",
+            "new_tuple",
+            "new_vector",
+            "not",
+            "or",
+            "pick",
+            "pop",
+            "push_bool",
+            "push_float",
+            "push_int",
+            "push_null",
+            "push_str",
+            "ret",
+            "roll",
+            "rot",
+            "set_field",
+            "set_member",
+            "set_push",
+            "set_slot",
+            "shl",
+            "shr",
+            "spawn",
+            "store",
+            "str_contains",
+            "str_ends_with",
+            "str_join",
+            "str_replace",
+            "str_split",
+            "str_starts_with",
+            "str_to_lower",
+            "str_to_upper",
+            "str_trim",
+            "sub",
+            "swap",
+            "throw",
+            "tuple_push",
+            "type_of",
+            "vector_push",
+            "yield"
+          ],
+          "description": "opcode name (completion list; not enforced, so a runtime-only opcode never shows a false error)"
+        },
+        "instr_lang": {
+          "type": "string"
+        },
+        "meta": {}
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "op": {
+                "const": "call"
+              }
+            },
+            "required": [
+              "op"
+            ]
+          },
+          "then": {
+            "required": [
+              "function"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "op": {
+                "const": "call_host"
+              }
+            },
+            "required": [
+              "op"
+            ]
+          },
+          "then": {
+            "required": [
+              "ic_id",
+              "capsule",
+              "method"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "op": {
+                "const": "call_interface"
+              }
+            },
+            "required": [
+              "op"
+            ]
+          },
+          "then": {
+            "required": [
+              "handle",
+              "method",
+              "argc"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "op": {
+                "const": "call_member"
+              }
+            },
+            "required": [
+              "op"
+            ]
+          },
+          "then": {
+            "required": [
+              "name"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "op": {
+                "const": "cap_call"
+              }
+            },
+            "required": [
+              "op"
+            ]
+          },
+          "then": {
+            "required": [
+              "name"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "op": {
+                "const": "cast"
+              }
+            },
+            "required": [
+              "op"
+            ]
+          },
+          "then": {
+            "required": [
+              "type"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "op": {
+                "const": "construct"
+              }
+            },
+            "required": [
+              "op"
+            ]
+          },
+          "then": {
+            "required": [
+              "kind"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "op": {
+                "const": "del_member"
+              }
+            },
+            "required": [
+              "op"
+            ]
+          },
+          "then": {
+            "required": [
+              "name"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "op": {
+                "const": "exec_lang"
+              }
+            },
+            "required": [
+              "op"
+            ]
+          },
+          "then": {
+            "required": [
+              "lang",
+              "code"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "op": {
+                "const": "export_var"
+              }
+            },
+            "required": [
+              "op"
+            ]
+          },
+          "then": {
+            "required": [
+              "name"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "op": {
+                "const": "get_field"
+              }
+            },
+            "required": [
+              "op"
+            ]
+          },
+          "then": {
+            "required": [
+              "name"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "op": {
+                "const": "get_member"
+              }
+            },
+            "required": [
+              "op"
+            ]
+          },
+          "then": {
+            "required": [
+              "name"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "op": {
+                "const": "get_slot"
+              }
+            },
+            "required": [
+              "op"
+            ]
+          },
+          "then": {
+            "required": [
+              "slot"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "op": {
+                "const": "has_member"
+              }
+            },
+            "required": [
+              "op"
+            ]
+          },
+          "then": {
+            "required": [
+              "name"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "op": {
+                "const": "import_var"
+              }
+            },
+            "required": [
+              "op"
+            ]
+          },
+          "then": {
+            "required": [
+              "name"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "op": {
+                "const": "is_kind"
+              }
+            },
+            "required": [
+              "op"
+            ]
+          },
+          "then": {
+            "required": [
+              "kind"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "op": {
+                "const": "jmp"
+              }
+            },
+            "required": [
+              "op"
+            ]
+          },
+          "then": {
+            "required": [
+              "target"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "op": {
+                "const": "jmp_if"
+              }
+            },
+            "required": [
+              "op"
+            ]
+          },
+          "then": {
+            "required": [
+              "target"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "op": {
+                "const": "jmp_if_not"
+              }
+            },
+            "required": [
+              "op"
+            ]
+          },
+          "then": {
+            "required": [
+              "target"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "op": {
+                "const": "load"
+              }
+            },
+            "required": [
+              "op"
+            ]
+          },
+          "then": {
+            "required": [
+              "name"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "op": {
+                "const": "load_kind"
+              }
+            },
+            "required": [
+              "op"
+            ]
+          },
+          "then": {
+            "required": [
+              "kind"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "op": {
+                "const": "pick"
+              }
+            },
+            "required": [
+              "op"
+            ]
+          },
+          "then": {
+            "required": [
+              "n"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "op": {
+                "const": "push_bool"
+              }
+            },
+            "required": [
+              "op"
+            ]
+          },
+          "then": {
+            "required": [
+              "value"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "op": {
+                "const": "push_float"
+              }
+            },
+            "required": [
+              "op"
+            ]
+          },
+          "then": {
+            "required": [
+              "value"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "op": {
+                "const": "push_int"
+              }
+            },
+            "required": [
+              "op"
+            ]
+          },
+          "then": {
+            "required": [
+              "value"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "op": {
+                "const": "push_str"
+              }
+            },
+            "required": [
+              "op"
+            ]
+          },
+          "then": {
+            "required": [
+              "value"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "op": {
+                "const": "roll"
+              }
+            },
+            "required": [
+              "op"
+            ]
+          },
+          "then": {
+            "required": [
+              "n"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "op": {
+                "const": "set_field"
+              }
+            },
+            "required": [
+              "op"
+            ]
+          },
+          "then": {
+            "required": [
+              "name"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "op": {
+                "const": "set_member"
+              }
+            },
+            "required": [
+              "op"
+            ]
+          },
+          "then": {
+            "required": [
+              "name"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "op": {
+                "const": "set_slot"
+              }
+            },
+            "required": [
+              "op"
+            ]
+          },
+          "then": {
+            "required": [
+              "slot"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "op": {
+                "const": "store"
+              }
+            },
+            "required": [
+              "op"
+            ]
+          },
+          "then": {
+            "required": [
+              "name"
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

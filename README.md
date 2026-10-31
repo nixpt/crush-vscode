@@ -9,6 +9,11 @@ Syntax highlighting and compiler diagnostics for the [Crush](https://github.com/
   triple-quoted strings), comments (`//` and `#`), `@lang { ... }` polyglot blocks,
   `@annotation` AI-native annotations, and capability-call syntax (`io.print(...)`,
   `fs.read(...)` — no sigil, plain dotted calls).
+- **Other Crush file types** (CRUSH-366) — `.cvms` (CVM1 assembly: `.func` directives, labels,
+  opcodes from `crush-vm`'s assembler, `;`/`#` comments), `capsule.toml` (crush-pkg manifest,
+  a small TOML grammar), and `.cast.json`/`.cast`, `.casm`/`.sno`/`.casm.json` as JSON with a
+  JSON Schema each (`schemas/`; completion + validation). `schemas/*.json` are generated from
+  crush-ast: `python3 scripts/gen-schemas.py /path/to/crush-ast`. No file-icon theme yet.
 - **Diagnostics** — runs `crushc --message-format json --check` on open/save and surfaces
   its output as real VS Code problems (squiggles + Problems panel), rather than a hand-rolled
   parser reimplementation. `crushc` is the source of truth for what's a Crush syntax/type
