@@ -1,0 +1,50 @@
+@caison { version: "1.0" }
+
+schema: "milestones/1"
+
+project: {
+  name: "crush-vscode"
+  kind: "repo"
+  lifecycle: "active" ~0.6 @verified { at: "2026-11-18", by: "altair" }
+  lifecycle_since: "2026-07-14"
+  home: "zorro"
+  ticket_prefix: "VSC"
+  summary: "VS Code extension for Crush (publisher crush-lang, 0.1.0): syntax highlighting, crush-lsp diagnostics/hover, cvms and capsule.toml languages, CAST/CASM JSON schemas; no tag, not checked for a marketplace listing"
+  stewards: ["altair"]
+  evidence: {
+    default_branch: "main"
+  }
+}
+
+milestones: [
+  {
+    id: "V0"
+    title: "extension with crush-lsp backend"
+    status: "done" @verified { at: "2026-11-18", by: "altair" }
+    done_at: "2026-07-14"
+    done_when: [{ claim: "package.json present", check: { kind: "file", path: "package.json", contains: "crush-lang" } }]
+  },
+  {
+    id: "V1"
+    title: "file types and schemas (cvms, capsule.toml, CAST/CASM)"
+    status: "done" @verified { at: "2026-11-18", by: "altair" }
+    done_at: "2026-10-31"
+    done_when: [{ claim: "PR #1 merged (CRUSH-366)", check: { kind: "merged", pr: "1" } }]
+    notes: "crush-ast's CRUSH-366 ticket file still says In review"
+  },
+  {
+    id: "V2"
+    title: "grammar sync policy and real diagnostic ranges"
+    status: "next" @verified { at: "2026-11-18", by: "altair" }
+    tickets: ["VSC-1", "VSC-2"]
+    depends_on: ["crush-lsp:L1"]
+    done_when: [{ claim: "VSC-1 and VSC-2 closed", check: { kind: "tickets", status: "Done" } }]
+    notes: "VSC-2's crush-ast gate CRUSH-74 is Done; it still waits on crush-lsp LSP-2"
+  },
+  {
+    id: "V3"
+    title: "release: tagged build and a published listing"
+    status: "planned" ~0.5 @verified { at: "2026-11-18", by: "altair" }
+    done_when: [{ claim: "a release tag", check: { kind: "tag", pattern: "v*" } }, "listed on the VS Code marketplace or Open VSX"]
+  },
+]
